@@ -1,0 +1,17 @@
+name: StructuredCommandInfo
+author: Emcc13
+desription: StructuredCommandInfo - Information text via command
+version: 0.1.0
+api-version: 1.18
+
+main: com.github.Emcc13.StructuredCommandInfo
+
+commands:
+  sci_setline:
+    description: set line of information print
+    aliases: setline
+    permission: sci.set_line
+
+  sci_reload:
+    description: reload config
+    permission: sci.reload
