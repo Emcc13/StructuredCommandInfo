@@ -2,22 +2,22 @@ package com.github.Emcc13.Commands;
 
 import com.github.Emcc13.Config.CommandConfig;
 import com.github.Emcc13.StructuredCommandInfo;
-import com.github.Emcc13.Util.Tuple;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class InfoCommand extends BukkitCommand {
+public class InfoCommand extends BukkitCommand implements CommandExecutor {
     public String command_name = null;
-    private ArrayList<TextComponent> info = null;
+    private ArrayList<String> info = null;
 
-    public InfoCommand(String command, List<TextComponent> info) {
+    public InfoCommand(String command, List<String> info) {
         super(command);
         this.setAliases(new ArrayList<String>() {{
             add(command);
@@ -27,45 +27,49 @@ public class InfoCommand extends BukkitCommand {
     }
 
     @Override
+    public @Nullable String getPermission() {
+        return this.command_name;
+    }
+
+    @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-        for (TextComponent tc : this.info) {
-            sender.spigot().sendMessage(tc);
+        for (String tc : this.info) {
+            sender.sendRichMessage(tc);
         }
         return false;
     }
 
-    public List<String> get_text() {
-        List<String> result = new LinkedList<String>();
-        char colorChar = (char) StructuredCommandInfo.get_instance().getCachedConfig().get(CommandConfig.altColor.key());
-        for (TextComponent tc : this.info) {
-            result.add(tc.toPlainText().replace('§', colorChar));
-        }
-        return result;
-    }
-
-    public List<TextComponent> get_info(){
+    public List<String> get_info(){
         return this.info;
     }
 
-    public void set_info(List<TextComponent> text){
+    public void set_info(List<String> text){
         this.info = new ArrayList<>(text);
     }
 
-    public void set_line(int index, String line){
+    public boolean set_line(int index, String line){
         Map<String, Object> cachedConfig = StructuredCommandInfo.get_instance().getCachedConfig();
-        char colorChar = (char) cachedConfig.get(CommandConfig.altColor.key());
         String confPrefix = (String) cachedConfig.get(CommandConfig.prefix.key());
-        TextComponent new_line = new TextComponent(ChatColor.translateAlternateColorCodes(colorChar,
-                CommandConfig.formatString(line, new Tuple<>("%PREFIX%", confPrefix))));
+        String new_line = line.replace("%PREFIX%", confPrefix);
+//        todo: replace player name
         while (info.size()<index)
-            info.add(new TextComponent());
+            info.add("");
         info.set(index-1, new_line);
         for (int idx=info.size()-1; idx>=0; idx--){
-            if (info.get(idx).getText().isEmpty()) {
+            if (info.get(idx).isEmpty()) {
                 info.remove(idx);
                 continue;
             }
             break;
         }
+        return info.size() > 0;
     }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        this.execute(commandSender, s, strings);
+        return false;
+    }
+
+
 }

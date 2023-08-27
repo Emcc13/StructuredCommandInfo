@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SetLine implements TabExecutor {
+public class SetLine implements TabExecutor{
     public final String command_name = "sci_setline";
     public final String permission = "sci.set_line";
     private StructuredCommandInfo main;
@@ -32,11 +32,17 @@ public class SetLine implements TabExecutor {
             return false;
         }
         String command_name = args[0];
-        int line_index = Integer.parseInt(args[1]);
+        int line_index=0;
+        try {
+            line_index = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e){
+            sender.sendMessage("Wrong line number!");
+            return false;
+        }
         String line_text = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
         InfoCommand commandHandler;
         if (!main.commands.containsKey(command_name))
-            commandHandler = new InfoCommand(command_name, new LinkedList<TextComponent>());
+            commandHandler = new InfoCommand(command_name, new LinkedList<String>());
         else
             commandHandler = main.commands.get(command_name);
         if (!CommandConfig.updateConfig(command_name, line_index, line_text)) {
@@ -47,6 +53,7 @@ public class SetLine implements TabExecutor {
         if (main.commands.containsKey(command_name))
             return false;
         main.add_new_command(commandHandler);
+        ((Player) sender).updateCommands();
         return false;
     }
 

@@ -3,24 +3,66 @@ package com.github.Emcc13.Config;
 import com.github.Emcc13.Commands.InfoCommand;
 import com.github.Emcc13.StructuredCommandInfo;
 import com.github.Emcc13.Util.Tuple;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.util.*;
 import java.util.logging.Level;
 
 public enum CommandConfig implements ConfigInterface {
-    altColor("&"),
     prefix("[PXFL-Info]");
 
     public enum Commands implements ConfigInterface {
         commands_scinfo(new ArrayList<String>() {{
             add("%PREFIX% This is the structured command plugin providing commands which prints information to users.");
             add("%PREFIX% If you want to add new commands you can do that via editing the config.");
+            add("%PREFIX% Example Text with color: "+MiniMessage.miniMessage().serialize(
+                    Component.text("Unformatted Text ").append(
+                                    Component.text("Formatted Text")
+                                            .color(TextColor.color(12,13,73))
+                            )
+                            .append(Component.text(" Unformatted Text"))
+            ));
+            add("%PREFIX% Example Text with Hover Event showing Text: "+MiniMessage.miniMessage().serialize(
+                    Component.text("Unformatted Text ").append(
+                            Component.text("Formatted Text")
+                                    .hoverEvent(HoverEvent.showText(Component.text("Hover Text With Space")
+                                            .appendNewline()
+                                            .append(Component.text("And new Line"))))
+                                    .color(TextColor.color(255,128,50))
+                            )
+                            .append(Component.text(" Unformatted Text"))
+            ));
+            add("%PREFIX% Example Text with Open URL Event on Click: "+MiniMessage.miniMessage().serialize(
+                    Component.text("Unformatted Text ").append(
+                                    Component.text("Formatted Text")
+                                            .clickEvent(ClickEvent.openUrl("https://github.com/Emcc13"))
+                                            .color(TextColor.color(255,128,50))
+                            )
+                            .append(Component.text(" Unformatted Text"))
+            ));
+            add("%PREFIX% Example Text with Run Command Event on Click: "+MiniMessage.miniMessage().serialize(
+                    Component.text("Unformatted Text ").append(
+                                    Component.text("Formatted Text")
+                                            .clickEvent(ClickEvent.runCommand("/help"))
+                                            .color(TextColor.color(255,128,50))
+                            )
+                            .append(Component.text(" Unformatted Text"))
+            ));
+            add("%PREFIX% Example Text with Suggest Command Event on Click: "+MiniMessage.miniMessage().serialize(
+                    Component.text("Unformatted Text ").append(
+                                    Component.text("Formatted Text")
+                                            .clickEvent(ClickEvent.suggestCommand("/help"))
+                                            .color(TextColor.color(255,128,50))
+                            )
+                            .append(Component.text(" Unformatted Text"))
+            ));
         }});
         private final Object value;
         private final String key_;
@@ -73,7 +115,6 @@ public enum CommandConfig implements ConfigInterface {
             }
             cachedConfig.put(key, value);
         }
-        cachedConfig.put(altColor.key(), ((String) cachedConfig.get(altColor.key())).charAt(0));
 
         config.addDefaults(cachedConfig);
         config.options().copyDefaults(true);
@@ -82,14 +123,13 @@ public enum CommandConfig implements ConfigInterface {
     }
 
     public static Map<String, InfoCommand> getCommands(StructuredCommandInfo main) {
-        char altColor_char = (char) main.getCachedConfig().get(altColor.key());
         String confPrefix = (String) main.getCachedConfig().get(prefix.key());
         Map<String, InfoCommand> commands = new HashMap<>();
         main.reloadConfig();
         Configuration config = main.getConfig();
         String key;
         Object value;
-        LinkedList<TextComponent> info_text = new LinkedList<>();
+        LinkedList<String> info_text = new LinkedList<>();
 
 //        get predefined commands
         for (Commands entry : Commands.values()) {
@@ -103,9 +143,7 @@ public enum CommandConfig implements ConfigInterface {
             try {
                 info_text.clear();
                 for (String line : ((List<String>) value)) {
-                    info_text.add(new TextComponent(ChatColor.translateAlternateColorCodes(altColor_char,
-                            formatString(line, new Tuple<>("%PREFIX%", confPrefix))
-                    )));
+                    info_text.add(line.replace("%PREFIX%", confPrefix));
                 }
             } catch (Exception e) {
                 Bukkit.getLogger().log(Level.WARNING, "[SCI] Failed to load config for key: " + key);
@@ -123,8 +161,7 @@ public enum CommandConfig implements ConfigInterface {
                 try {
                     info_text.clear();
                     for (String line : commandSection.getStringList(key)) {
-                        info_text.add(new TextComponent(ChatColor.translateAlternateColorCodes(altColor_char,
-                                formatString(line, new Tuple<>("%PREFIX%", confPrefix)))));
+                        info_text.add(line.replace("%PREFIX%", confPrefix));
                     }
                 } catch (Exception e) {
                     Bukkit.getLogger().log(Level.WARNING, "[SCI] Failed to load config for key: " + key);
