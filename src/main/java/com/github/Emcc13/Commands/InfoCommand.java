@@ -2,6 +2,7 @@ package com.github.Emcc13.Commands;
 
 import com.github.Emcc13.Config.CommandConfig;
 import com.github.Emcc13.StructuredCommandInfo;
+import com.github.Emcc13.Util.Tuple;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -34,7 +35,10 @@ public class InfoCommand extends BukkitCommand implements CommandExecutor {
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
         for (String tc : this.info) {
-            sender.sendRichMessage(tc);
+            sender.sendRichMessage(CommandConfig.formatString(
+                    tc,
+                    new Tuple<String,String>("%PLAYER%", sender.getName())
+            ));
         }
         return false;
     }
