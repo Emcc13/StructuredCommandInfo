@@ -3,10 +3,12 @@ package com.github.Emcc13.Commands;
 import com.github.Emcc13.Config.CommandConfig;
 import com.github.Emcc13.StructuredCommandInfo;
 import com.github.Emcc13.Util.Tuple;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,11 +36,17 @@ public class InfoCommand extends BukkitCommand implements CommandExecutor {
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-        for (String tc : this.info) {
-            sender.sendRichMessage(CommandConfig.formatString(
-                    tc,
-                    new Tuple<String,String>("%PLAYER%", sender.getName())
-            ));
+        if (StructuredCommandInfo.get_instance().placeholderAPI_available && sender instanceof Player) {
+            for (String tc : this.info){
+                sender.sendRichMessage(PlaceholderAPI.setPlaceholders((Player)sender, tc));
+            }
+        } else {
+            for (String tc : this.info) {
+                sender.sendRichMessage(CommandConfig.formatString(
+                        tc,
+                        new Tuple<String, String>("%player_name%", sender.getName())
+                ));
+            }
         }
         return false;
     }

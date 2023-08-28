@@ -18,6 +18,8 @@ public class StructuredCommandInfo extends JavaPlugin {
 
     public Map<String, InfoCommand> commands;
 
+    public boolean placeholderAPI_available = false;
+
     public StructuredCommandInfo() {
         instance = this;
     }
@@ -26,6 +28,7 @@ public class StructuredCommandInfo extends JavaPlugin {
         this.cachedConfig = CommandConfig.getConfig(this);
         this.commands = CommandConfig.getCommands(this);
         enable_commands();
+        placeholderAPI_available = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
     }
 
     public void onDisable() {
