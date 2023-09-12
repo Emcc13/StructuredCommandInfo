@@ -218,6 +218,7 @@ public enum CommandConfig implements ConfigInterface {
         for (Tuple<String, String> replacement : replacements) {
             result = result.replace(replacement.t1, replacement.t2);
         }
+        result = result.replaceAll("%[0-9]+%", "");
         return result;
     }
 }

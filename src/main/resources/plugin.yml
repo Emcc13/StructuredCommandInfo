@@ -1,7 +1,7 @@
 name: StructuredCommandInfo
 author: Emcc13
 desription: StructuredCommandInfo - Information text via command
-version: 0.3.0
+version: 0.3.2
 api-version: 1.19
 
 main: com.github.Emcc13.StructuredCommandInfo

@@ -12,9 +12,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class InfoCommand extends BukkitCommand implements CommandExecutor {
     public String command_name = null;
@@ -36,15 +36,23 @@ public class InfoCommand extends BukkitCommand implements CommandExecutor {
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+        List<Tuple<String, String>> replacement_list = new LinkedList<>();
+        for (int idx=1; idx<=args.length; idx++){
+            replacement_list.add(new Tuple<>("%"+idx+"%", args[idx-1]));
+        }
         if (StructuredCommandInfo.get_instance().placeholderAPI_available && sender instanceof Player) {
+            Tuple<String, String>[] arg_array = replacement_list.stream().toArray(Tuple[]::new);
             for (String tc : this.info){
+                tc = CommandConfig.formatString(tc, arg_array);
                 sender.sendRichMessage(PlaceholderAPI.setPlaceholders((Player)sender, tc));
             }
         } else {
+            replacement_list.add(new Tuple<String, String>("%player_name%", sender.getName()));
+            Tuple<String, String>[] arg_array = replacement_list.stream().toArray(Tuple[]::new);
             for (String tc : this.info) {
                 sender.sendRichMessage(CommandConfig.formatString(
                         tc,
-                        new Tuple<String, String>("%player_name%", sender.getName())
+                        arg_array
                 ));
             }
         }
